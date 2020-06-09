@@ -1,0 +1,19 @@
+Package: semRush
+Type: Package
+Title: Query the SEMRush SEO Database
+Version: 0.1.0
+Author: Eric Van Cleave <ericvc2@gmail.com>
+Maintainer: Eric Van Cleave <ericvc2@gmail.com>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.1.0
+Depends:
+	assertthat (>= 0.2.1),
+	stringr (>= 1.4.0),
+	httr (>= 1.4.1),
+	tidyr (>= 1.0.3),
+	rvest (>= 0.3.5),
+	xml2 (>= 1.2.2) 
