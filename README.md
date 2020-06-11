@@ -16,17 +16,6 @@
 
 -   #### All functions include documentation, examples, and links to relevant information about how to format report request options (e.g, regional database codes, export column codes, and defintions)
 
-
-<style>
-pre {
-  overflow-x: auto;
-}
-pre code {
-  word-wrap: normal;
-  white-space: pre;
-}
-</style>
-
 <div>
 <div style="margin-bottom:50px;">
 </div>
@@ -38,7 +27,7 @@ pre code {
     #install.packages("devtools")
     install_github("ericvc/semRush")
 
-####### <em><b>Console ouput</b></em> - calling the library from the R environment will load its namespace along with other required packages.
+###### <em><b>Console ouput</b></em> - calling the library from the R environment will load its namespace along with other required packages.
 
     >library(semRush)
     Loading required package: assertthat
