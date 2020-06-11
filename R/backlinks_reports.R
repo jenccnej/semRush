@@ -34,7 +34,7 @@
 #' key <- "" #enter your SEMRush account API key.
 #'
 #' ##Get 'backlinks_overview' report
-#' sem_backlinks(
+#' backlinks_report(
 #'   type = "backlinks_overview",
 #'   target = "cran.r-project.org",
 #'   key = key,
@@ -49,7 +49,7 @@
 #'
 #'
 #' ##Get 'backlinks_matrix' report
-#' sem_backlinks(
+#' backlinks_report(
 #'   type = "backlinks_comparison",
 #'   targets = c("cran.r-project.org", "cran.r-project.org"),
 #'   key = key,
@@ -62,10 +62,10 @@
 #'1 cran.… root_domain           57               60     320845406       34758   46258   312822147       8023226
 #'2 cran.… domain                57               60      26223147       19931   30118    21025373       5197764
 #'… with 4 more variables: texts_num <int>, images_num <int>, forms_num <int>, frames_num <int>
-sem_backlinks <- function(type, key, target, targets, target_type, target_types,#required arguments
-                          display_limit=5, display_offset,
-                          time_samp, export_columns, timespan = "weeks",
-                          return_url = FALSE
+backlinks_reports <- function(type, key, target, targets, target_type, target_types,#required arguments
+                             display_limit=5, display_offset,
+                             time_samp, export_columns, timespan = "weeks",
+                             return_url = FALSE
 )
 {
 
@@ -499,7 +499,7 @@ sem_backlinks <- function(type, key, target, targets, target_type, target_types,
     request_url <- paste0(request_url, "&timespan=", timespan)
   }
   if(hasArg(export_columns)){
-    assert_that(noNA(export_columns), !any(!sapply(export_columns, is.string)))
+    assert_that(noNA(export_columns), all(sapply(export_columns, is.string)))
     if(any(!export_columns %in% export_columns_default)){
       stop("Invalid export columns for requested report type.")
     }
@@ -535,11 +535,15 @@ sem_backlinks <- function(type, key, target, targets, target_type, target_types,
 
   } else{
 
-    if(str_detect(cont, "ERROR 135")){
-      stop("Something went wrong. Check input arguments (ERROR 135 :: API REPORT TYPE DISABLED)")
-    }
+      if(str_detect(cont, "ERROR 135")){
+        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
+      }
 
-    warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
+      if(str_detect(cont, "ERROR 130")){
+        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
+      }
+
+      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
 
   }
 

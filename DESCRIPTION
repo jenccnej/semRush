@@ -1,12 +1,11 @@
 Package: semRush
 Type: Package
-Title: Query the SEMRush SEO Database
-Version: 0.1.0
+Title: semRush: an R package for creating and customizing requests for data reports through the SEMRush SEO database API
+Version: 0.2.0
 Author: Eric Van Cleave <ericvc2@gmail.com>
 Maintainer: Eric Van Cleave <ericvc2@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Description: This package helps users create and customize requests for data reports from the SEMRush SEO database API. Functions generate data report API requests, automatically download and parse the returned HTML data reports, and returns data to the R environment for further analyses.
+License: Open Software License ("OSL") v 3.0
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0

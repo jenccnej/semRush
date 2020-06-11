@@ -28,32 +28,33 @@
 #'
 #'## Generate 'phrase_organic' report
 #'
-#' report <- sem_keyword_reports(
+#' report <- keyword_reports(
 #'     type = "phrase_organic",
 #'     key = key,
 #'     phrase = "r software",
 #'     database = "us",
-#'     display_limit=10
+#'     display_limit=10,
+#'     export_colums = c("Dn","Ur","Fk")
 #' )
 #'
 #'print(report)
-#' A tibble: 10 x 2
-#'    Domain                        Url
-#'    <chr>                         <chr>
-#'  1 r-project.org                 https://www.r-project.org/
-#'  2 wikipedia.org                 https://en.wikipedia.org/wiki/R_(programming_language)
-#'  3 rstudio.com                   https://rstudio.com/
-#'  4 umich.edu                     https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-r.html
-#'  5 epa.gov                       https://archive.epa.gov/nheerl/arm/web/pdf/irss_2.6.pdf
-#'  6 psu.edu                       https://online.stat.psu.edu/statprogram/tutorials/statistical-software/r
-#'  7 datamentor.io                 https://www.datamentor.io/r-programming/
-#'  8 statmethods.net               https://www.statmethods.net/r-tutorial/index.html
-#'  9 utoledo.edu                   https://libguides.utoledo.edu/stats-software/R
-#' 10 predictiveanalyticstoday.com https://www.predictiveanalyticstoday.com/r-software-environment/
+# A tibble: 10 x 3
+#' Domain                         Url                                                                       SERP.Features
+#' <chr>                          <chr>                                                                     <chr>
+#' 1 r-project.org                https://www.r-project.org/                                                1,6
+#' 2 wikipedia.org                https://en.wikipedia.org/wiki/R_(programming_language)                    1,6
+#' 3 rstudio.com                  https://rstudio.com/                                                      1
+#' 4 epa.gov                      https://archive.epa.gov/nheerl/arm/web/pdf/irss_2.6.pdf                   1
+#' 5 umich.edu                    https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-r… 1
+#' 6 psu.edu                      https://online.stat.psu.edu/statprogram/tutorials/statistical-software/r  1
+#' 7 datamentor.io                https://www.datamentor.io/r-programming/                                  1
+#' 8 utoledo.edu                  https://libguides.utoledo.edu/stats-software/R                            1
+#' 9 statmethods.net              https://www.statmethods.net/r-tutorial/index.html                         1
+#'10 predictiveanalyticstoday.com https://www.predictiveanalyticstoday.com/r-software-environment/          1,7
 #'
 #'## Generate 'phrase_these' report
 #'
-#' report <- sem_keyword_reports(
+#' report <- keyword_reports(
 #'     type = "phrase_these",
 #'     key = key,
 #'     phrase = c("statistical programming","r software"),
@@ -67,10 +68,10 @@
 #' <chr>                       <int>     <dbl>   <dbl>     <dbl>             <chr>
 #' 1 r software                 4400     2.68    0         4190000000      0.67,0.67,0.55,0.67,0.82,0.82,0.82,0.67,0.55,1.0…
 #' 2 statistical programm…      1000     3.91    0.14      394000000       0.81,0.63,0.63,0.55,0.63,0.81,0.81,0.63,0.55,1.0…
-sem_keyword_reports <- function(type, key, phrase,#required arguments
-                          database, display_limit=5, display_offset,
-                          display_date, export_columns,
-                          return_url = FALSE
+keyword_reports <- function(type, key, phrase,#required arguments
+                            database, display_limit=5, display_offset,
+                            display_date, export_columns,
+                            return_url = FALSE
 )
 {
 
@@ -234,7 +235,7 @@ sem_keyword_reports <- function(type, key, phrase,#required arguments
     request_url <- paste0(request_url, "&display_date=", display_date)
   }
   if(hasArg(export_columns)){
-    assert_that(noNA(export_columns), !any(!sapply(export_columns, is.string)))
+    assert_that(noNA(export_columns), all(sapply(export_columns, is.string)))
     if(any(!export_columns %in% export_columns_default)){
       stop("Invalid export columns for requested report type.")
     }

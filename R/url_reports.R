@@ -24,7 +24,7 @@
 #'## Get 'url_organic' report
 #'urlToInvestigate <- "https://cran.r-project.org/"
 #'#request report
-#' report <- sem_url_reports(
+#' report <- url_reports(
 #'     type = "url_organic",
 #'     key = key,
 #'     url = urlToInvestigate,
@@ -42,7 +42,7 @@
 #'4 cran r…        1           590  0           0          0.04              0                  86   0.39,…  5,6
 #'5 cran r…        1           480  0           0          0.03              0                  80   0.44,…  1,5,6
 # … with 1 more variable: Timestamp <int>
-sem_url_reports <- function(type, key, url, database, #required arguments
+url_reports <- function(type, key, url, database, #required arguments
                             display_limit=5, display_offset,
                             display_date, export_columns,
                             return_url = FALSE
@@ -54,9 +54,7 @@ sem_url_reports <- function(type, key, url, database, #required arguments
 
   ## Check that universal required arguements are present and valid
   assert_that(noNA(type), not_empty(type), is.string(type),
-              noNA(key), not_empty(key), is.string(key)#,
-              #noNA(url), not_empty(url), is.string(url),
-              #noNA(database), not_empty(database), is.string(database),
+              noNA(key), not_empty(key), is.string(key)
               )
 
   ## Check that requested report is a valid choice.
@@ -117,7 +115,7 @@ sem_url_reports <- function(type, key, url, database, #required arguments
     request_url <- paste0(request_url, "&display_date=", display_date)
   }
   if(hasArg(export_columns)){
-    assert_that(noNA(export_columns), !any(!sapply(export_columns, is.string)))
+    assert_that(noNA(export_columns), all(sapply(export_columns, is.string)))
     if(any(!export_columns %in% export_columns_default)){
       stop("Invalid export columns for requested report type.")
     }
@@ -150,11 +148,15 @@ sem_url_reports <- function(type, key, url, database, #required arguments
 
   } else{
 
-    if(str_detect(cont, "ERROR 135")){
-      stop("Something went wrong. Check input arguments (ERROR 135 :: API REPORT TYPE DISABLED)")
-    }
+      if(str_detect(cont, "ERROR 135")){
+        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
+      }
 
-    warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
+      if(str_detect(cont, "ERROR 130")){
+        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
+      }
+
+      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
 
   }
 

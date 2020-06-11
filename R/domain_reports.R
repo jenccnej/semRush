@@ -27,7 +27,7 @@
 #'
 #' #Use function to request report
 #' report <-
-#'   sem_domain_reports(
+#'   domain_reports(
 #'     type = "domain_domains",
 #'     key = key,
 #'     domains = domains,
@@ -43,10 +43,10 @@
 #' 3 man           40         58         64           0           0      25270000000  0.46        301000             87.8
 #' 4 shoes …       24         57         55           0           0       6080000000  0.88        301000             91.5
 #' 5 shoes …       63         38         29           0           0       4710000000  1.01        301000             91.0
-sem_domain_reports <- function(type, key, domain, domains,#required arguments
-                                 database="us", display_limit=5, display_offset,
-                                 display_date, export_columns, display_daily, return_url=FALSE
-                               )
+domain_reports <- function(type, key, domain, domains,#required arguments
+                           database="us", display_limit=5, display_offset,
+                           display_date, export_columns, display_daily, return_url=FALSE
+                           )
 {
 
   ## All domain_report types require an API key and regional database to be specified. All will accept
@@ -228,7 +228,7 @@ sem_domain_reports <- function(type, key, domain, domains,#required arguments
     request_url <- paste0(request_url, "&display_date=", display_date)
   }
   if(hasArg(export_columns)){
-    assert_that(noNA(export_columns), !any(!sapply(export_columns, is.string)))
+    assert_that(noNA(export_columns), all(sapply(export_columns, is.string)))
     if(any(!export_columns %in% export_columns_default)){
       stop("Invalid export columns for requested report type.")
     }
@@ -248,7 +248,9 @@ sem_domain_reports <- function(type, key, domain, domains,#required arguments
   if(response$status_code == 200){
 
     if(str_detect(cont, "ERROR 50")){
+
       stop("Something went wrong. Check input arguments (ERROR 50 :: NOTHING FOUND)")
+
     }
 
     d <- cont %>%
@@ -258,14 +260,17 @@ sem_domain_reports <- function(type, key, domain, domains,#required arguments
 
     return(d)
 
-
   } else{
 
-    if(str_detect(cont, "ERROR 135")){
-      stop("Something went wrong. Check input arguments (ERROR 135 :: API REPORT TYPE DISABLED)")
-    }
+      if(str_detect(cont, "ERROR 135")){
+        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
+      }
 
-    warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
+      if(str_detect(cont, "ERROR 130")){
+        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
+      }
+
+      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
 
   }
 

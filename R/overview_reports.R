@@ -23,14 +23,14 @@
 #'key <- ""
 #'
 #'## Get 'domain_ranks' report for a single domain
-#' domain_ranks_report <- sem_overview_reports(
+#'report <- overview_reports(
 #'   type = "domain_ranks",
-#'   key = api_key,
-#'  domain = "cran.r-project.org",
+#'   key = key,
+#'   domain = "cran.r-project.org",
 #'   display_limit = 5
-#' )
+#')
 #'
-#' print(domain_ranks_report)
+#' print(report)
 #'# A tibble: 5 x 11
 #' Database   Domain  Rank Organic.Keywords Organic.Traffic Organic.Cost Adwords.Keywords Adwords.Traffic Adwords.Cost
 #' <chr>      <chr>  <int>            <int>           <int>        <int>            <int>           <int>        <int>
@@ -42,7 +42,7 @@
 #' … with 2 more variables: PLA.uniques <int>, PLA.keywords <int>
 #'
 #'## Get 'rank' report
-#'rank_report <- sem_overview_reports(
+#'report <- overview_reports(
 #'   type = "rank",
 #'   key = api_key,
 #'   domain = "cran.r-project.org",
@@ -50,7 +50,7 @@
 #'   display_limit = 5
 #')
 #'
-#'print(rank_report)
+#'print(report)
 #' # A tibble: 5 x 8
 #'   Domain         Rank Organic.Keywords Organic.Traffic Organic.Cost Adwords.Keywords Adwords.Traffic Adwords.Cost
 #'   <chr>         <int>            <int>           <dbl>        <dbl>            <int>           <int>        <int>
@@ -59,11 +59,11 @@
 #' 3 amazon.com        3         93291441       998829876    805881241            77380         3103766      9102331
 #' 4 google.com        4        484166619       662298708   2701485008            20414         4318917     63404537
 #' 5 facebook.com      5         97924346       551902310    560771216             7729          647205      2725034
-sem_overview_reports <- function(type, key, domain, #required arguments
-                                 database, display_limit=5, display_offset,
-                                 display_date, export_columns, display_daily,
-                                 return_url = FALSE
-                                 )
+overview_reports <- function(type, key, domain, #required arguments
+                             database, display_limit=5, display_offset,
+                             display_date, export_columns, display_daily,
+                             return_url = FALSE
+                             )
 {
 
   ## Set defaults
@@ -183,7 +183,7 @@ sem_overview_reports <- function(type, key, domain, #required arguments
     request_url <- paste0(request_url, "&display_date=", display_date)
   }
   if(hasArg(export_columns)){
-    assert_that(noNA(export_columns), !any(!sapply(export_columns, is.string)))
+    assert_that(noNA(export_columns), all(sapply(export_columns, is.string)))
     if(any(!export_columns %in% export_columns_default)){
       stop("Invalid export columns for requested report type.")
     }
@@ -216,11 +216,15 @@ sem_overview_reports <- function(type, key, domain, #required arguments
 
   } else{
 
-    if(str_detect(cont, "ERROR 135")){
-      stop("Something went wrong. Check input arguments (ERROR 135 :: API REPORT TYPE DISABLED)")
-    }
+      if(str_detect(cont, "ERROR 135")){
+        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
+      }
 
-    warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
+      if(str_detect(cont, "ERROR 130")){
+        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
+      }
+
+      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
 
   }
 

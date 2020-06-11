@@ -10,13 +10,13 @@
 #' api_key <- ""
 #'
 #' ## without formatting
-#' sem_api_units_balance(api_key)
+#' account_api_units(api_key)
 #' >10000
 #'
 #' ## with formatting
-#' sem_api_units_balance(api_key, character_format=TRUE)
+#' account_api_units(api_key, character_format=TRUE)
 #' >"10,000"
-sem_api_units_balance <- function(key, character_format=FALSE){
+account_api_units <- function(key, character_format=FALSE){
 
   ## Check that universal required arguements are present and valid
   assert_that(noNA(key), not_empty(key), is.string(key))
