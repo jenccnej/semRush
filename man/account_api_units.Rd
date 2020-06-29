@@ -9,7 +9,7 @@ account_api_units(key, character_format = FALSE)
 \arguments{
 \item{key}{\emph{string}. API key assigned to a user after subscribing to SEMrush. The key is available from the account profile page.}
 
-\item{characer_format}{\emph{logical}. If FALSE (default), returns the unit balance as a numeric. If TRUE, value returned is a character string formatted with a "," every three digits.}
+\item{character_format}{\emph{logical}. If FALSE (default), returns the unit balance as a numeric. If TRUE, value returned is a character string formatted with a "," every three digits.}
 }
 \description{
 Returns the SEMRush account API Units balance. API Units are consumed when requests to the SEMRush database are made through the API.
@@ -17,13 +17,14 @@ See the SEMRush API website \href{https://www.semrush.com/api-analytics/}{(https
 }
 \examples{
 ##define object with your SEMRush account API key.
+\dontrun{
 api_key <- ""
 
 ## without formatting
 account_api_units(api_key)
->10000
+10000
 
 ## with formatting
 account_api_units(api_key, character_format=TRUE)
->"10,000"
+"10,000"}
 }

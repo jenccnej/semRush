@@ -2,7 +2,7 @@
 % Please edit documentation in R/backlinks_reports.R
 \name{backlinks_reports}
 \alias{backlinks_reports}
-\title{Request SEMRush Overview Reports}
+\title{Request SEMRush Backlinks Reports}
 \usage{
 backlinks_reports(
   type,
@@ -13,7 +13,6 @@ backlinks_reports(
   target_types,
   display_limit = 5,
   display_offset,
-  time_samp,
   export_columns,
   timespan = "weeks",
   return_url = FALSE
@@ -62,35 +61,25 @@ This function creates a request to the SEMRush SEO database for users with a sub
 See the SEMRush API website \href{https://www.semrush.com/api-analytics/}{(https://www.semrush.com/api-analytics/)} for additional information, including a list of codes for the regional databases and export variables.
 }
 \examples{
+\dontrun{
 key <- "" #enter your SEMRush account API key.
 
 ##Get 'backlinks_overview' report
-backlinks_report(
+backlinks_reports(
   type = "backlinks_overview",
   target = "cran.r-project.org",
   key = key,
   target_type = "domain",
   return_url = FALSE
 )
-# A tibble: 1 x 13
-  total domains_num ips_num follows_num nofollows_num score trust_score urls_num ipclassc_num texts_num forms_num
-  <int>       <int>   <int>       <int>         <int> <int>       <int>    <int>        <int>     <int>     <int>
-1 2.62e7       19931   30118    21025373       5197764    57          60  9897270        15936  25167587         1
-… with 2 more variables: frames_num <int>, images_num <int>
 
-
-##Get 'backlinks_matrix' report
-backlinks_report(
+##Get 'backlinks_comparison' report
+backlinks_reports(
   type = "backlinks_comparison",
   targets = c("cran.r-project.org", "cran.r-project.org"),
   key = key,
   target_types = c("root_domain", "domain"),
   return_url = FALSE
 )
-# A tibble: 2 x 13
- target target_type   domain_score domain_trust_sc… backlinks_num domains_num ips_num follows_num nofollows_num
- <chr>  <chr>              <int>            <int>         <int>       <int>   <int>       <int>         <int>
-1 cran.… root_domain           57               60     320845406       34758   46258   312822147       8023226
-2 cran.… domain                57               60      26223147       19931   30118    21025373       5197764
-… with 4 more variables: texts_num <int>, images_num <int>, forms_num <int>, frames_num <int>
+}
 }

@@ -47,6 +47,7 @@ See the SEMRush API website \href{https://www.semrush.com/api-analytics/}{(https
 }
 \examples{
 #Enter your SEMRush account API key
+\dontrun{
 key <- ""
 
 ## Get 'domain_ranks' report for a single domain
@@ -54,36 +55,38 @@ report <- overview_reports(
   type = "domain_ranks",
   key = key,
   domain = "cran.r-project.org",
-  display_limit = 5
+  display_limit = 5,
+  export_columns = c("Db", "Dt", "Dn", "Rk")
 )
 
 print(report)
-# A tibble: 5 x 11
-Database   Domain  Rank Organic.Keywords Organic.Traffic Organic.Cost Adwords.Keywords Adwords.Traffic Adwords.Cost
-<chr>      <chr>  <int>            <int>           <int>        <int>            <int>           <int>        <int>
-1 ph       r-pro…   336             8980          504281        54705                0               0            0
-2 ge       r-pro…   865              593            8319          799                0               0            0
-3 et       r-pro…   931             1196            2496          141                0               0            0
-4 kh       r-pro…   996              648            5122          446                0               0            0
-5 is       r-pro…  1012              656            2202            1                0               0            0
-… with 2 more variables: PLA.uniques <int>, PLA.keywords <int>
+# A tibble: 5 x 4
+Database     Date Domain          Rank
+<chr>       <int> <chr>          <int>
+1 ph       20200617 r-project.org   353
+2 ge       20200617 r-project.org   906
+3 kh       20200617 r-project.org   971
+4 is       20200616 r-project.org  1019
+5 ma       20200616 r-project.org  1034
 
 ## Get 'rank' report
 report <- overview_reports(
   type = "rank",
-  key = api_key,
+  key = key,
   domain = "cran.r-project.org",
   database = "us", #United States
-  display_limit = 5
+  display_limit = 5,
+  export_columns = c("Dn", "Rk", "Or", "Ot")
 )
 
 print(report)
-# A tibble: 5 x 8
-  Domain         Rank Organic.Keywords Organic.Traffic Organic.Cost Adwords.Keywords Adwords.Traffic Adwords.Cost
-  <chr>         <int>            <int>           <dbl>        <dbl>            <int>           <int>        <int>
-1 wikipedia.org     1        105359860      3038929100   4065812051                1               1            0
-2 youtube.com       2         95798001      1156183092    801586911             2629          409509      1193302
-3 amazon.com        3         93291441       998829876    805881241            77380         3103766      9102331
-4 google.com        4        484166619       662298708   2701485008            20414         4318917     63404537
-5 facebook.com      5         97924346       551902310    560771216             7729          647205      2725034
+# A tibble: 5 x 5
+ Keyword                    Position Previous.Position Search.Volume   CPC
+ <chr>                         <int>             <int>         <int> <dbl>
+1 cran                              1                 1          8100  1.42
+2 r cran                            1                 1          5400  0   
+3 r cran download                   1                 1           590  0   
+4 cran r project org windows        1                 1           590  0   
+5 cran r project                    1                 1           480  0   
+}
 }

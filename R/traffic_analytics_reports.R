@@ -4,7 +4,7 @@
 #' See the SEMRush API website \href{https://www.semrush.com/api-analytics/}{(https://www.semrush.com/api-analytics/)} for additional information, including a list of codes for the regional databases and export variables.
 #' @param type \emph{string}. The report type to be generated. Available report types are 'traffic_summary','traffic_sources','traffic_destinations','traffic_geo', or 'traffic_subdomains'.
 #' @param key \emph{string}. An identification key assigned to a user after subscribing to SEMrush. The key is available on the Profile page.
-#' @param domain \emph{string}. The unique name of a domain that you’d like to analyze (example.com).
+#' @param domain \emph{string}. The unique name of a domain that you want to analyze (example.com).
 #' @param domains \emph{vector}. A vector of character strings where each element is a unique name of a domain you would like to investigate [c("example-1.com","example-2.com",...)].
 #' @param country \emph{string}. The country code parameter ("XX") allows you to filter traffic data for a particular country. If the parameter is not specified, global data is shown by default.
 #' @param display_date \emph{string}. Date in format "YYYYMM15". A date on which a report will be shown. You can roll back to the past or choose an actual date.
@@ -15,13 +15,19 @@
 #' @param export_columns \emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.
 #' @param return_url logical. If TRUE, prints the request URL used to generate the report. Default value is FALSE.
 #'
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat noNA
+#' @importFrom assertthat is.string
+#' @importFrom assertthat not_empty
+#' @importFrom methods hasArg
+#' @importFrom tibble as_tibble
+#' @importFrom rlang .data
 #'
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
 traffic_analytics_reports <- function(type, key, domain, domains, #required arguments
-                             channel_type,
+                             channel_type, device_type, display_offset, display_limit,
                              country, display_date, export_columns,
                              return_url = FALSE
 )
@@ -217,35 +223,34 @@ traffic_analytics_reports <- function(type, key, domain, domains, #required argu
     print(paste0("Request URL: ",request_url))
   }
   response <- httr::GET(request_url)
-  #get content from response
+  #get content from return
   cont <- httr::content(response, as="text")
-
+  
   if(response$status_code == 200){
-
-    if(str_detect(cont, "ERROR 50")){
-      stop("Something went wrong. Check input arguments (ERROR 50 :: NOTHING FOUND)")
+    
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
-
+    
     d <- cont %>%
       textConnection() %>%
-      read.table(., sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
-      as_tibble
-
+      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      tibble::as_tibble
+    
     return(d)
-
-
+    
+    
   } else{
-
-    if(str_detect(cont, "ERROR 135")){
-      stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
+    
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
-
-    if(str_detect(cont, "ERROR 130")){
-      stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
-    }
-
-    warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
-
+    
+    stop(sprintf(
+      "Status code returned was not 200 (status: %s)",
+      as.character(response$status_code)
+    ))
+    
   }
 
 } #end function

@@ -5,14 +5,17 @@ Version: 0.2.0
 Author: Eric Van Cleave <ericvc2@gmail.com>
 Maintainer: Eric Van Cleave <ericvc2@gmail.com>
 Description: This package helps users create and customize requests for data reports from the SEMRush SEO database API. Functions generate data report API requests, automatically download and parse the returned HTML data reports, and returns data to the R environment for further analyses.
-License: Open Software License ("OSL") v 3.0
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.0
-Depends:
+Imports:
 	assertthat (>= 0.2.1),
 	stringr (>= 1.4.0),
 	httr (>= 1.4.1),
 	tidyr (>= 1.0.3),
 	rvest (>= 0.3.5),
-	xml2 (>= 1.2.2) 
+	xml2 (>= 1.2.2),
+	methods,
+	tibble,
+	rlang

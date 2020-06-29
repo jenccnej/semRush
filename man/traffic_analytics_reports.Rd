@@ -10,6 +10,9 @@ traffic_analytics_reports(
   domain,
   domains,
   channel_type,
+  device_type,
+  display_offset,
+  display_limit,
   country,
   display_date,
   export_columns,
@@ -21,11 +24,17 @@ traffic_analytics_reports(
 
 \item{key}{\emph{string}. An identification key assigned to a user after subscribing to SEMrush. The key is available on the Profile page.}
 
-\item{domain}{\emph{string}. The unique name of a domain that you’d like to analyze (example.com).}
+\item{domain}{\emph{string}. The unique name of a domain that you want to analyze (example.com).}
 
 \item{domains}{\emph{vector}. A vector of character strings where each element is a unique name of a domain you would like to investigate [c("example-1.com","example-2.com",...)].}
 
 \item{channel_type}{\emph{string}. The traffic channel filter. This parameter allows you to filter traffic sources by a specific channel type. If the channel type is not specified, data for all channels will be shown by default. Options are 'direct','referral','search','social', or 'paid'.}
+
+\item{device_type}{\emph{string}. The device filter. This parameter allows you to choose whether to retrieve desktop or mobile data, or both. If the device filter is not specified, data for all devices will be shown by default. Options are 'all', 'desktop', or 'mobile'.}
+
+\item{display_offset}{\emph{integer}. This parameter allows you to skip a specified number of results before sending a report. Please keep in mind that if you use the option display_offset, display_limit, the value should be increased by value display_offset.}
+
+\item{display_limit}{\emph{integer}. The number of results returned to a request. If this parameter is set to 0, up to 10,000 lines will be returned. Default is 5 lines.}
 
 \item{country}{\emph{string}. The country code parameter ("XX") allows you to filter traffic data for a particular country. If the parameter is not specified, global data is shown by default.}
 
@@ -34,12 +43,6 @@ traffic_analytics_reports(
 \item{export_columns}{\emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.}
 
 \item{return_url}{logical. If TRUE, prints the request URL used to generate the report. Default value is FALSE.}
-
-\item{display_limit}{\emph{integer}. The number of results returned to a request. If this parameter is set to 0, up to 10,000 lines will be returned. Default is 5 lines.}
-
-\item{display_offset}{\emph{integer}. This parameter allows you to skip a specified number of results before sending a report. Please keep in mind that if you use the option display_offset, display_limit, the value should be increased by value display_offset.}
-
-\item{device_type}{\emph{string}. The device filter. This parameter allows you to choose whether to retrieve desktop or mobile data, or both. If the device filter is not specified, data for all devices will be shown by default. Options are 'all', 'desktop', or 'mobile'.}
 }
 \value{
 A data table (tibble) with columns for each requested variable.

@@ -12,36 +12,45 @@
 #' @param export_columns \emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.
 #' @param return_url \emph{logical}. If TRUE, prints the request URL used to generate the report. Default value is FALSE.
 #'
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat noNA
+#' @importFrom assertthat is.string
+#' @importFrom assertthat not_empty
+#' @importFrom methods hasArg
+#' @importFrom tibble as_tibble
+#' @import stringr
+#' @importFrom rlang .data
 #'
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
 #'@examples
+#'\dontrun{
 #'#Enter your SEMRush account API key.
 #'#'key <- ""
 #'
 #'## Get 'url_organic' report
 #'urlToInvestigate <- "https://cran.r-project.org/"
 #'#request report
-#' report <- url_reports(
+#'report <- url_reports(
 #'     type = "url_organic",
 #'     key = key,
 #'     url = urlToInvestigate,
 #'     database = "us",
-#'     display_limit = 5
-#'   )
+#'     display_limit = 5,
+#'     export_columns = c("Ph", "Po", "Pp", "Nq", "Cp")
+#')
 #'
 #'print(report)
-# A tibble: 5 x 11
-#'  Keyword Position Search.Volume   CPC Competition  Traffic.... Traffic.Cost....  Number.of.Resul… Trends SERP.Features
-#'   <chr>      <int>         <int> <dbl>       <dbl>       <dbl>            <dbl>            <int>  <chr>   <chr>
-#'1 cran           1          8100  1.42        0.01       0.570             0.42               86   0.82,…  1,5,6
-#'2 r cran         1          5400  0           0          0.38              0                  88   0.82,…  1,5,6
-#'3 r cran…        1           590  0           0          0.04              0                  92   0.55,…  5,6
-#'4 cran r…        1           590  0           0          0.04              0                  86   0.39,…  5,6
-#'5 cran r…        1           480  0           0          0.03              0                  80   0.44,…  1,5,6
-# … with 1 more variable: Timestamp <int>
+#'# A tibble: 5 x 5
+#'  Keyword                    Position Previous.Position Search.Volume   CPC
+#'  <chr>                         <int>             <int>         <int> <dbl>
+#'1 cran                              1                 1          8100  1.42
+#'2 r cran                            1                 1          5400  0   
+#'3 r cran download                   1                 1           590  0   
+#'4 cran r project org windows        1                 1           590  0   
+#'5 cran r project                    1                 1           480  0
+#'} 
 url_reports <- function(type, key, url, database, #required arguments
                             display_limit=5, display_offset,
                             display_date, export_columns,
@@ -134,29 +143,24 @@ url_reports <- function(type, key, url, database, #required arguments
 
   if(response$status_code == 200){
 
-    if(str_detect(cont, "ERROR 50")){
-      stop("Something went wrong. Check input arguments (ERROR 50 :: NOTHING FOUND)")
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
 
     d <- cont %>%
       textConnection() %>%
-      read.table(., sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
-      as_tibble
+      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      tibble::as_tibble
 
     return(d)
 
 
   } else{
 
-      if(str_detect(cont, "ERROR 135")){
-        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
-      }
-
-      if(str_detect(cont, "ERROR 130")){
-        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
-      }
-
-      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
+    warning(sprintf(
+      "Status code returned was not 200 (status: %s)",
+      as.character(response$status_code)
+    ))
 
   }
 

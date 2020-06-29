@@ -17,7 +17,13 @@
 #' @param export_columns \emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.
 #' @param return_url logical. If TRUE, prints the request URL used to generate the report. Default value is FALSE.
 #'
-#' @import assertthat
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat noNA
+#' @importFrom assertthat is.string
+#' @importFrom assertthat not_empty
+#' @importFrom methods hasArg
+#' @importFrom tibble as_tibble
+#' @importFrom rlang .data
 #'
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
@@ -26,48 +32,51 @@
 #'#Enter your SEMRush account API key
 #'key <- ""
 #'
+#'\dontrun{
 #'## Generate 'phrase_organic' report
-#'
 #' report <- keyword_reports(
 #'     type = "phrase_organic",
 #'     key = key,
 #'     phrase = "r software",
 #'     database = "us",
 #'     display_limit=10,
-#'     export_colums = c("Dn","Ur","Fk")
+#'     export_columns = c("Dn","Ur")
 #' )
 #'
 #'print(report)
-# A tibble: 10 x 3
-#' Domain                         Url                                                                       SERP.Features
-#' <chr>                          <chr>                                                                     <chr>
-#' 1 r-project.org                https://www.r-project.org/                                                1,6
-#' 2 wikipedia.org                https://en.wikipedia.org/wiki/R_(programming_language)                    1,6
-#' 3 rstudio.com                  https://rstudio.com/                                                      1
-#' 4 epa.gov                      https://archive.epa.gov/nheerl/arm/web/pdf/irss_2.6.pdf                   1
-#' 5 umich.edu                    https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-is-r… 1
-#' 6 psu.edu                      https://online.stat.psu.edu/statprogram/tutorials/statistical-software/r  1
-#' 7 datamentor.io                https://www.datamentor.io/r-programming/                                  1
-#' 8 utoledo.edu                  https://libguides.utoledo.edu/stats-software/R                            1
-#' 9 statmethods.net              https://www.statmethods.net/r-tutorial/index.html                         1
-#'10 predictiveanalyticstoday.com https://www.predictiveanalyticstoday.com/r-software-environment/          1,7
+#'# A tibble: 10 x 2
+#'  Domain          Url                                                                  
+#'  <chr>           <chr>                                                                
+#'1 r-project.org   https://www.r-project.org/                                           
+#'2 wikipedia.org   https://en.wikipedia.org/wiki/R_(programming_language)               
+#'3 rstudio.com     https://rstudio.com/                                                 
+#'4 epa.gov         https://archive.epa.gov/nheerl/arm/web/pdf/irss_2.6.pdf              
+#'5 umich.edu       https://www.icpsr.umich.edu/icpsrweb/content/shared/ICPSR/faqs/what-~
+#'6 datamentor.io   https://www.datamentor.io/r-programming/                             
+#'7 psu.edu         https://online.stat.psu.edu/statprogram/tutorials/statistical-softwa~
+#'8 utoledo.edu     https://libguides.utoledo.edu/stats-software/R                       
+#'9 statmethods.n~  https://www.statmethods.net/r-tutorial/index.html                    
+#'10 statmethods.n~ https://www.statmethods.net/
 #'
 #'## Generate 'phrase_these' report
 #'
 #' report <- keyword_reports(
 #'     type = "phrase_these",
 #'     key = key,
-#'     phrase = c("statistical programming","r software"),
+#'     phrase = c("statistical programming","r software","r programming"),
 #'     database = "us",
-#'     display_limit=10
+#'     display_limit=10,
+#'     export_columns = c("Ph", "Nq", "Cp", "Nr")
 #' )
 #'
 #'print(report)
-#' # A tibble: 2 x 6
-#' Keyword                 Search.Volume CPC   Competition Number.of.Results Trends
-#' <chr>                       <int>     <dbl>   <dbl>     <dbl>             <chr>
-#' 1 r software                 4400     2.68    0         4190000000      0.67,0.67,0.55,0.67,0.82,0.82,0.82,0.67,0.55,1.0…
-#' 2 statistical programm…      1000     3.91    0.14      394000000       0.81,0.63,0.63,0.55,0.63,0.81,0.81,0.63,0.55,1.0…
+#' # A tibble: 3 x 4
+#'  Keyword                 Search.Volume   CPC Number.of.Results
+#'  <chr>                           <int> <dbl>             <dbl>
+#'1 r programming                   22200  4.36         266000000
+#'2 r software                       4400  5.87        4540000000
+#'3 statistical programming          1000  3.91         407000000
+#'}
 keyword_reports <- function(type, key, phrase,#required arguments
                             database, display_limit=5, display_offset,
                             display_date, export_columns,
@@ -247,36 +256,37 @@ keyword_reports <- function(type, key, phrase,#required arguments
 
   ## Get the result and format for output
   if(return_url){
-    print(paste0("Request URL: ", request_url))
+    print(paste0("Request URL: ",request_url))
   }
-  #GET request
   response <- httr::GET(request_url)
   #get content from return
   cont <- httr::content(response, as="text")
-  #check status code of return
+  
   if(response$status_code == 200){
-
-    if(str_detect(cont, "ERROR 50")){
-      stop("Something went wrong. Check input arguments (ERROR 50 :: NOTHING FOUND)")
+    
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
-
-    #parse the table
+    
     d <- cont %>%
       textConnection() %>%
-      read.table(., sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
-      as_tibble
-
+      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      tibble::as_tibble(.data)
+    
     return(d)
-
-
+    
+    
   } else{
-
-    if(str_detect(cont, "ERROR 135")){
-      stop("Something went wrong. Check input arguments (ERROR 135 :: API REPORT TYPE DISABLED)")
+    
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
-
-    warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
-
+    
+    stop(sprintf(
+      "Status code returned was not 200 (status: %s)",
+      as.character(response$status_code)
+    ))
+    
   }
 
 }

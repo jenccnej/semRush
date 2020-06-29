@@ -43,6 +43,7 @@ This function creates a request to the SEMRush SEO database for users with a sub
 See the SEMRush API website \href{https://www.semrush.com/api-analytics/}{(https://www.semrush.com/api-analytics/)} for additional information, including a list of codes for the regional databases and export variables.
 }
 \examples{
+\dontrun{
 #Enter your SEMRush account API key.
 #'key <- ""
 
@@ -54,15 +55,18 @@ report <- url_reports(
     key = key,
     url = urlToInvestigate,
     database = "us",
-    display_limit = 5
-  )
+    display_limit = 5,
+    export_columns = c("Ph", "Po", "Pp", "Nq", "Cp")
+)
 
 print(report)
- Keyword Position Search.Volume   CPC Competition  Traffic.... Traffic.Cost....  Number.of.Resul… Trends SERP.Features
-  <chr>      <int>         <int> <dbl>       <dbl>       <dbl>            <dbl>            <int>  <chr>   <chr>
-1 cran           1          8100  1.42        0.01       0.570             0.42               86   0.82,…  1,5,6
-2 r cran         1          5400  0           0          0.38              0                  88   0.82,…  1,5,6
-3 r cran…        1           590  0           0          0.04              0                  92   0.55,…  5,6
-4 cran r…        1           590  0           0          0.04              0                  86   0.39,…  5,6
-5 cran r…        1           480  0           0          0.03              0                  80   0.44,…  1,5,6
+# A tibble: 5 x 5
+ Keyword                    Position Previous.Position Search.Volume   CPC
+ <chr>                         <int>             <int>         <int> <dbl>
+1 cran                              1                 1          8100  1.42
+2 r cran                            1                 1          5400  0   
+3 r cran download                   1                 1           590  0   
+4 cran r project org windows        1                 1           590  0   
+5 cran r project                    1                 1           480  0
+} 
 }

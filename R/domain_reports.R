@@ -16,33 +16,44 @@
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat noNA
+#' @importFrom assertthat is.string
+#' @importFrom assertthat not_empty
+#' @importFrom methods hasArg
+#' @import tibble
+#' @importFrom rlang .data
+#' 
 #' @examples
 #'## Enter your SEMRush account API key
+#'\dontrun{
 #'key <- ""
 #'
 #'## Request example for domain_domains
 #'
-#'#define 'domains' string, using the format specificed from https://www.semrush.com/api-analytics/#domain_domains.
-#' domains <- "*|or|nike.com|*|or|adidas.com|*|or|reebok.com"
+#'#define 'domains' argument (see https://www.semrush.com/api-analytics/#domain_domains)
+#'domains <- "*|or|nike.com|*|or|adidas.com|*|or|reebok.com"
+#' 
+#'#Use function to request report
+#'report <-
+#' domain_reports(
+#'   type = "domain_domains",
+#'   key = key,
+#'   domains = domains,
+#'   database = "us",
+#'   export_columns = c("Ph", "Nq", "Kd", "Co")
+#')
 #'
-#' #Use function to request report
-#' report <-
-#'   domain_reports(
-#'     type = "domain_domains",
-#'     key = key,
-#'     domains = domains,
-#'     database = "us"
-#' )
-#'
-#' print(report)
-#' # A tibble: 5 x 12
-#' Keyword nike.com adidas.com reebok.com Domain4.Pos Domain5.Pos Number.of.Resul…   CPC Search.Volume Keyword.Difficu…
-#' <chr>      <int>      <int>      <int>       <int>       <int>            <dbl>   <dbl>         <int>            <dbl>
-#' 1 shoes         62         35         36           0           0       4750000000  1.08       1500000             90.0
-#' 2 basket…        3         14         13           0           0        339000000  0.64        368000             88.9
-#' 3 man           40         58         64           0           0      25270000000  0.46        301000             87.8
-#' 4 shoes …       24         57         55           0           0       6080000000  0.88        301000             91.5
-#' 5 shoes …       63         38         29           0           0       4710000000  1.01        301000             91.0
+#'print(report)
+#'# A tibble: 5 x 4
+#'  Keyword          Search.Volume Keyword.Difficulty Competition
+#'  <chr>                    <int>              <dbl>       <dbl>
+#'1 shoes                  1500000               90.3        1   
+#'2 basketball shoes        368000               89.8        1   
+#'3 women                   368000               87.1        0.12
+#'4 man                     301000               87          0   
+#'5 shoes for men           301000               90.2        1
+#'}   
 domain_reports <- function(type, key, domain, domains,#required arguments
                            database="us", display_limit=5, display_offset,
                            display_date, export_columns, display_daily, return_url=FALSE
@@ -244,34 +255,28 @@ domain_reports <- function(type, key, domain, domains,#required arguments
   response <- httr::GET(request_url)
   #get content from return
   cont <- httr::content(response, as="text")
-
+  
   if(response$status_code == 200){
-
-    if(str_detect(cont, "ERROR 50")){
-
-      stop("Something went wrong. Check input arguments (ERROR 50 :: NOTHING FOUND)")
-
+    
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
-
+    
     d <- cont %>%
       textConnection() %>%
-      read.table(., sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
-      as_tibble
-
+      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      tibble::as_tibble(.data)
+    
     return(d)
-
+    
+    
   } else{
-
-      if(str_detect(cont, "ERROR 135")){
-        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
-      }
-
-      if(str_detect(cont, "ERROR 130")){
-        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
-      }
-
-      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
-
+    
+    stop(sprintf(
+      "Status code returned was not 200 (status: %s)",
+      as.character(response$status_code)
+    ))
+    
   }
 
 }

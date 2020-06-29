@@ -1,4 +1,4 @@
-#' Request SEMRush Overview Reports
+#' Request SEMRush Backlinks Reports
 #'
 #' @description This function creates a request to the SEMRush SEO database for users with a subscription and sufficient API units.
 #' See the SEMRush API website \href{https://www.semrush.com/api-analytics/}{(https://www.semrush.com/api-analytics/)} for additional information, including a list of codes for the regional databases and export variables.
@@ -26,45 +26,43 @@
 #' @param export_columns \emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.
 #' @param return_url logical. If TRUE, prints the request URL used to generate the report. Default value is FALSE.
 #'
+#' @importFrom assertthat assert_that
+#' @importFrom assertthat noNA
+#' @importFrom assertthat is.string
+#' @importFrom assertthat not_empty
+#' @importFrom methods hasArg
+#' @import tibble
+#' @importFrom rlang .data
+#'
 #'
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
 #' @examples
-#' key <- "" #enter your SEMRush account API key.
+#'\dontrun{
+#'key <- "" #enter your SEMRush account API key.
 #'
-#' ##Get 'backlinks_overview' report
-#' backlinks_report(
+#'##Get 'backlinks_overview' report
+#'backlinks_reports(
 #'   type = "backlinks_overview",
 #'   target = "cran.r-project.org",
 #'   key = key,
 #'   target_type = "domain",
 #'   return_url = FALSE
 #' )
-#' # A tibble: 1 x 13
-#'   total domains_num ips_num follows_num nofollows_num score trust_score urls_num ipclassc_num texts_num forms_num
-#'   <int>       <int>   <int>       <int>         <int> <int>       <int>    <int>        <int>     <int>     <int>
-#' 1 2.62e7       19931   30118    21025373       5197764    57          60  9897270        15936  25167587         1
-#' … with 2 more variables: frames_num <int>, images_num <int>
 #'
-#'
-#' ##Get 'backlinks_matrix' report
-#' backlinks_report(
+#'##Get 'backlinks_comparison' report
+#'backlinks_reports(
 #'   type = "backlinks_comparison",
 #'   targets = c("cran.r-project.org", "cran.r-project.org"),
 #'   key = key,
 #'   target_types = c("root_domain", "domain"),
 #'   return_url = FALSE
 #' )
-#' # A tibble: 2 x 13
-#'  target target_type   domain_score domain_trust_sc… backlinks_num domains_num ips_num follows_num nofollows_num
-#'  <chr>  <chr>              <int>            <int>         <int>       <int>   <int>       <int>         <int>
-#'1 cran.… root_domain           57               60     320845406       34758   46258   312822147       8023226
-#'2 cran.… domain                57               60      26223147       19931   30118    21025373       5197764
-#'… with 4 more variables: texts_num <int>, images_num <int>, forms_num <int>, frames_num <int>
+#'}
 backlinks_reports <- function(type, key, target, targets, target_type, target_types,#required arguments
                              display_limit=5, display_offset,
-                             time_samp, export_columns, timespan = "weeks",
+                             export_columns, timespan = "weeks",
                              return_url = FALSE
 )
 {
@@ -513,38 +511,31 @@ backlinks_reports <- function(type, key, target, targets, target_type, target_ty
   if(return_url){
     print(paste0("Request URL: ",request_url))
   }
-  #GET request
   response <- httr::GET(request_url)
   #get content from return
   cont <- httr::content(response, as="text")
-  #check status code of return
+  
   if(response$status_code == 200){
-
-    if(str_detect(cont, "ERROR 50")){
-      stop("Something went wrong. Check input arguments (ERROR 50 :: NOTHING FOUND)")
+    
+    if(stringr::str_detect(cont, "ERROR")){
+      stop(sprintf("Something went wrong. Check input arguments. (%s)",cont))
     }
-
-    #parse the table
+    
     d <- cont %>%
       textConnection() %>%
-      read.table(., sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
-      as_tibble
-
+      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      tibble::as_tibble(.data)
+    
     return(d)
-
-
+    
+    
   } else{
-
-      if(str_detect(cont, "ERROR 135")){
-        stop("Something went wrong. Check input arguments. (ERROR 135 :: API REPORT TYPE DISABLED)")
-      }
-
-      if(str_detect(cont, "ERROR 130")){
-        stop("Something went wrong. Check input arguments. (ERROR 130 :: API DISABLED)")
-      }
-
-      warning(paste0("Status code returned was not 200 (status: ",response$status_code,")"))
-
+    
+    stop(sprintf(
+      "Status code returned was not 200 (status: %s)",
+      as.character(response$status_code)
+    ))
+    
   }
 
 }
