@@ -1,7 +1,7 @@
 Package: semRush
 Type: Package
 Title: semRush: an R package for creating and customizing requests for data reports through the SEMRush SEO database API
-Version: 0.2.0
+Version: 1.1.0
 Author: Eric Van Cleave <ericvc2@gmail.com>
 Maintainer: Eric Van Cleave <ericvc2@gmail.com>
 Description: This package helps users create and customize requests for data reports from the SEMRush SEO database API. Functions generate data report API requests, automatically download and parse the returned HTML data reports, and returns data to the R environment for further analyses.
