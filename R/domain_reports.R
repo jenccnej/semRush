@@ -56,8 +56,8 @@
 #'}   
 domain_reports <- function(type, key, domain, domains,#required arguments
                            database="us", display_limit=5, display_offset,
-                           display_date, export_columns, display_daily, return_url=FALSE
-                           )
+                           display_date, export_columns, display_daily, return_url=FALSE,
+                           ...)
 {
 
   ## All domain_report types require an API key and regional database to be specified. All will accept
@@ -74,6 +74,7 @@ domain_reports <- function(type, key, domain, domains,#required arguments
   ## Check that requested report is a valid choice.
   #A list of the available types of reports that can be generated.
   report_types = c("domain_organic",
+                   "domain_organic_organic",
                    "domain_adwords",
                    "domain_adwords_unique",
                    "domain_adwords_adwords",
@@ -102,6 +103,16 @@ domain_reports <- function(type, key, domain, domains,#required arguments
     #List of valid export columns for this report type
     export_columns_default = c("Ph","Po","Pp","Pd","Nq","Cp","Ur","Tr","Tg","Tc","Co","Nr","Td","Kd","Fp","Fk","Ts")
 
+  } #end report type: domain_organic
+  
+  if(type == "domain_organic_organic"){
+    
+    assert_that(noNA(domain), not_empty(domain), is.string(domain))
+    
+    ## Check requested data to ensure it matches selected report type
+    #List of valid export columns for this report type
+    export_columns_default = c("Dn","Cr","Np","Or","Ot","Oc","Ad")
+    
   } #end report type: domain_organic
 
   ## Match report types with appropriate export columns
@@ -264,10 +275,18 @@ domain_reports <- function(type, key, domain, domains,#required arguments
     
     d <- cont %>%
       textConnection() %>%
-      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      utils::read.table(
+        numerals = "no.loss",
+        dec = ".",
+        quote = "",
+        sep = ";",
+        header = TRUE,
+        stringsAsFactors = FALSE
+      ) %>%
       tibble::as_tibble(.data)
     
     return(d)
+    print(d)
     
     
   } else{

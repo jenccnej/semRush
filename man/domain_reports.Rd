@@ -15,7 +15,8 @@ domain_reports(
   display_date,
   export_columns,
   display_daily,
-  return_url = FALSE
+  return_url = FALSE,
+  ...
 )
 }
 \arguments{

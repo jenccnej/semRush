@@ -1,4 +1,4 @@
-#' Request SEMRush Domain Reports
+#' Request SEMRush Advertising Reports
 #'
 #' @description This function creates a request to the SEMRush SEO database for users with a subscription and sufficient API units.
 #'
@@ -12,6 +12,7 @@
 #' @param device_type string. This parameter shows the type of device by which statistics have been collected-a PC, tablet, or smartphone. Only used for some report types. Options: "all", "desktop", "smartphone_apple", "smartphone_android", "tablet_apple", or "tablet_android".
 #' @param export_columns \emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.
 #' @param return_url logical. If TRUE, prints the request URL used to generate the report. Default value is FALSE.
+#' @param timestmap logical. If TRUE (default), converts 
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
@@ -48,7 +49,8 @@ advertising_reports <-
            display_offset,
            device_type,
            export_columns,
-           return_url = FALSE)
+           return_url = FALSE,
+           timestamp = TRUE)
   {
     ## All domain_report types require an API key and regional database to be specified. All will accept
     #optional arguments display_limit and display_offset
@@ -68,7 +70,7 @@ advertising_reports <-
     
     ## Check that requested report is a valid choice.
     #A list of the available types of reports that can be generated.
-    report_types = c(
+    report_types <- c(
       "publisher_text_ads",
       "publisher_advertisers",
       "advertiser_publishers",
@@ -78,6 +80,7 @@ advertising_reports <-
       "advertiser_rank",
       "publisher_rank"
     )
+	
     assert_that(length(type) == 1, is.string(type))
     if (!type %in% report_types) {
       stop("Invalid report type requested.")
@@ -281,13 +284,18 @@ advertising_reports <-
         ) %>%
         tibble::as_tibble(.data)
       
+      #option to convert timestamps (milliseconds) to POSIX format if present in the report
+      if(timestamp & all(c("first_seen", "last_seen") %in% names(d))){
+        d$first_seen = .POSIXct(d$first_seen / 1000, tz = "UTC") %>% as.character()
+        d$last_seen = .POSIXct(d$last_seen / 1000, tz = "UTC") %>% as.character()
+      }
+      
       return(d)
-      print(d)
       
       
     } else{
       stop(sprintf(
-        "Status code returned was not 200 (status: %s)",
+        "Status code returned was not 200 (status: %s)", #returns status code other than 200
         as.character(response$status_code)
       ))
       

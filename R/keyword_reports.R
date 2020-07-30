@@ -270,7 +270,14 @@ keyword_reports <- function(type, key, phrase,#required arguments
     
     d <- cont %>%
       textConnection() %>%
-      utils::read.table(.data, sep=";", header=TRUE, stringsAsFactors = FALSE) %>%
+      utils::read.table(
+        numerals = "no.loss",
+        dec = ".",
+        quote = "",
+        sep = ";",
+        header = TRUE,
+        stringsAsFactors = FALSE
+      ) %>%
       tibble::as_tibble(.data)
     
     return(d)
