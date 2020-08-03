@@ -12,7 +12,7 @@
 #' @param device_type string. This parameter shows the type of device by which statistics have been collected-a PC, tablet, or smartphone. Only used for some report types. Options: "all", "desktop", "smartphone_apple", "smartphone_android", "tablet_apple", or "tablet_android".
 #' @param export_columns \emph{vector}. A vector of character strings specifying the variables to be included in the report, which vary according to the report type (see 'type' argument). If this parameter is not specified, default columns will be sent.
 #' @param return_url logical. If TRUE, prints the request URL used to generate the report. Default value is FALSE.
-#' @param timestmap logical. If TRUE (default), converts 
+#' @param timestamp logical. If TRUE (default), converts original timestamp (milliseconds since origin) to yyyy-mm-dd.
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
