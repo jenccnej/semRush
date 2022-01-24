@@ -26,7 +26,7 @@
 #' @return A data table (tibble) with columns for each requested variable.
 #' @export
 #'
-traffic_analytics_reports <- function(type, key, domain, domains, #required arguments
+traffic_analytics_reports <- function(type, key, domain, domains, targets, #required arguments
                              channel_type, device_type, display_offset, display_limit,
                              country, display_date, export_columns,
                              return_url = FALSE
@@ -39,7 +39,7 @@ traffic_analytics_reports <- function(type, key, domain, domains, #required argu
 
   ## Check that requested report is a valid choice.
   #A list of the available types of reports that can be generated.
-  report_types = c("traffic_summary","traffic_sources","traffic_destinations","traffic_geo","traffic_subdomains")
+  report_types = c("summary","traffic_summary","traffic_sources","traffic_destinations","traffic_geo","traffic_subdomains")
   assert_that(length(type)==1, is.string(type))
   if(!type %in% report_types){
     stop("Invalid report type requested.")
@@ -49,6 +49,45 @@ traffic_analytics_reports <- function(type, key, domain, domains, #required argu
   assert_that(length(key)==1, is.string(key))
 
   ## Match report types with appropriate export columns
+  if(type == "summary"){
+
+    assert_that(noNA(targets), not_empty(targets), all(sapply(targets, is.string)))
+    assert_that(!hasArg(targets))
+
+    ## Check requested data to ensure it matches selected report type
+    #List of valid export columns for this report type
+    export_columns_default = c("display_date",
+                               "country",
+                               "device_type",
+                               "target",
+                               "rank",
+                               "accuracy",
+                               "visits",
+                               "desktop_visits",
+                               "mobile_visits",
+                               "users",
+                               "desktop_users",
+                               "mobile_users",
+                               "direct",
+                               "referral",
+                               "social",
+                               "search",
+                               "paid",
+                               "unknown_channel",
+                               "time_on_site",
+                               "desktop_time_on_site",
+                               "mobile_time_on_site",
+                               "pages_per_visit",
+                               "desktop_pages_per_visit",
+                               "mobile_pages_per_visit",
+                               "bounce_rate",
+                               "desktop_bounce_rate",
+                               "mobile_bounce_rate",
+                               "desktop_share",
+                               "mobile_share",)
+
+  } #end report type: summary
+  
   if(type == "traffic_summary"){
 
     assert_that(noNA(domains), not_empty(domains), all(sapply(domains, is.string)))
@@ -170,13 +209,19 @@ traffic_analytics_reports <- function(type, key, domain, domains, #required argu
   } #end report type: traffic_subdomains
 
   ## Create URL request (base)
-  request_url <- paste0("https://api.semrush.com/analytics/ta/v2/?key=",key,
-                        "&type=",type)
+  request_url <- paste0("https://api.semrush.com/analytics/ta/v3/",type,"&key=",key)
 
   ## Append optional parameters to the URL request
   if(hasArg(domain)){
     assert_that(noNA(domain), not_empty(domain), is.string(domain))
     request_url <- paste0(request_url, "&domain=", domain)
+  }
+  if(hasArg(targets)){
+    assert_that(noNA(targets), all(sapply(targets, is.string)))
+    if(length(targets)>1){
+      targets <- paste0(targets, collapse = ",")
+    }
+    request_url <- paste0(request_url, "&targets=", targets)
   }
   if(hasArg(domains)){
     assert_that(noNA(domains), all(sapply(domains, is.string)))
