@@ -52,7 +52,7 @@ traffic_analytics_reports <- function(type, key, domain, domains, targets, #requ
   if(type == "summary"){
 
     assert_that(noNA(targets), not_empty(targets), all(sapply(targets, is.string)))
-    #assert_that(!hasArg(targets))
+    ##assert_that(!hasArg(targets))
 
     ## Check requested data to ensure it matches selected report type
     #List of valid export columns for this report type
