@@ -209,7 +209,7 @@ traffic_analytics_reports <- function(type, key, domain, domains, targets, #requ
   } #end report type: traffic_subdomains
 
   ## Create URL request (base)
-  request_url <- paste0("https://api.semrush.com/analytics/ta/v3/",type,"&key=",key)
+  request_url <- paste0("https://api.semrush.com/analytics/ta/v3/",type,"?key=",key)
 
   ## Append optional parameters to the URL request
   if(hasArg(domain)){
