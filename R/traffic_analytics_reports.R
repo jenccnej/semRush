@@ -84,7 +84,7 @@ traffic_analytics_reports <- function(type, key, domain, domains, targets, #requ
                                "desktop_bounce_rate",
                                "mobile_bounce_rate",
                                "desktop_share",
-                               "mobile_share",)
+                               "mobile_share")
 
   } #end report type: summary
   
